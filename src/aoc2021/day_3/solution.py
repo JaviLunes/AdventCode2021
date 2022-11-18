@@ -5,11 +5,9 @@
 from aoc2021.common import read_puzzle_input
 from aoc2021.day_3.tools import Report
 
-print("\nDay 3: Binary Diagnostic.")
-# Part one:
-numbers = read_puzzle_input(day=3)
-report = Report(*numbers)
-print(f"    The solution to part one is: {report.power_consumption}")
 
-# Part two:
-print(f"    The solution to part two is: {report.life_rating}")
+def compute_solution() -> tuple[int, int]:
+    """Compute the answers for the two parts of this day."""
+    numbers = read_puzzle_input(day=3)
+    report = Report(*numbers)
+    return report.power_consumption, report.life_rating

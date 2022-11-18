@@ -5,14 +5,12 @@
 from aoc2021.common import read_puzzle_input
 from aoc2021.day_8.tools import Entry
 
-print("\nDay 8: Seven Segment Search.")
-# Part one:
-targets = ["1", "4", "7", "8"]
-texts = read_puzzle_input(day=8)
-entries = [Entry(entry_text=text) for text in texts]
-total = sum(len([d for d in entry.output_digits if d in targets]) for entry in entries)
-print(f"    The solution to part one is: {total}")
 
-# Part two:
-total = sum(int("".join(entry.output_digits)) for entry in entries)
-print(f"    The solution to part two is: {total}")
+def compute_solution() -> tuple[int, int]:
+    """Compute the answers for the two parts of this day."""
+    targets = ["1", "4", "7", "8"]
+    texts = read_puzzle_input(day=8)
+    entries = [Entry(entry_text=text) for text in texts]
+    total_1 = sum(len([d for d in e.output_digits if d in targets]) for e in entries)
+    total_2 = sum(int("".join(entry.output_digits)) for entry in entries)
+    return total_1, total_2
