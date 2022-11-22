@@ -49,3 +49,79 @@ def read_puzzle_input(day: int) -> list[str]:
     with open(file_path, mode="r") as file:
         lines = [line.removesuffix("\n") for line in file]
     return lines
+
+
+def build_all_templates():
+    """Build templates for all non-existent day's puzzles."""
+    for d in range(len(DAILY_NAMES)):
+        build_templates(day=d + 1)
+
+
+def build_templates(day: int):
+    """Built input, tools, solving and tests template files for the provided day."""
+    building_funcs = (_prepare_input, _prepare_solution, _prepare_tests, _prepare_tools)
+    for func in building_funcs:
+        file_path, lines = func(day=day)
+        _write_file(file_path=file_path, lines=lines)
+
+
+def _prepare_input(day: int):
+    file_path = BASE_PATH / f"day_{day}" / "puzzle_input.txt"
+    lines = [""]
+    return file_path, lines
+
+
+def _prepare_solution(day: int):
+    file_path = BASE_PATH / f"day_{day}" / "solution.py"
+    lines = [
+        '# coding=utf-8\n',
+        f'"""Compute the solution of the {DAILY_NAMES[day - 1]} puzzle."""\n',
+        '\n',
+        '# Local application imports:\n',
+        'from aoc2021.common import read_puzzle_input\n',
+        f'from aoc2021.day_{day}.tools import ...\n',
+        '\n', '\n',
+        'def compute_solution() -> tuple[int, int]:\n',
+        '    """Compute the answers for the two parts of this day."""\n',
+        f'    lines = read_puzzle_input(day={day})\n',
+        '    ...\n',
+        '    return None, None\n']
+    return file_path, lines
+
+
+def _prepare_tests(day: int):
+    """Get file path and template lines for the testing file of the provided day."""
+    file_path = BASE_PATH.parents[1] / "tests" / f"tests_day_{day}.py"
+    lines = [
+        '# coding=utf-8\n',
+        f'"""Tests for the {DAILY_NAMES[day - 1]} puzzle."""\n',
+        '\n',
+        '# Standard library imports:\n',
+        'import unittest\n',
+        '\n',
+        '# Local application imports:\n',
+        f'from aoc2021.day_{day}.tools import ...\n',
+        '\n', '\n',
+        'class ExampleTests(unittest.TestCase):\n',
+        '    def setUp(self) -> None:\n',
+        '        """Define objects to be tested."""\n',
+        '        ...\n']
+    return file_path, lines
+
+
+def _prepare_tools(day: int):
+    file_path = BASE_PATH / f"day_{day}" / "tools.py"
+    lines = [
+        '# coding=utf-8\n',
+        f'"""Tools used for solving the {DAILY_NAMES[day - 1]} puzzle."""\n',
+        '\n']
+    return file_path, lines
+
+
+def _write_file(file_path: Path, lines: list[str]):
+    """Create a new file and write lines, or silently fail if it already exists."""
+    if file_path.exists():
+        return
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file=file_path, mode="w") as file:
+        file.writelines(lines)
