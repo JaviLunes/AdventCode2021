@@ -4,6 +4,7 @@
 # Standard library imports:
 from importlib import import_module
 from pathlib import Path
+from time import time
 
 # Set constants:
 BASE_PATH = Path(__file__).parent
@@ -34,6 +35,7 @@ def compute_solution(day: int):
         return
     # noinspection PyBroadException
     try:
+        t = time()
         print(f"\n{DAILY_NAMES[day - 1]}")
         solutions = module.compute_solution()
     except Exception:
@@ -41,6 +43,7 @@ def compute_solution(day: int):
     else:
         print(f"    The solution to part one is: {solutions[0]}")
         print(f"    The solution to part two is: {solutions[1]}")
+        print(f"    This took {time() - t:.2f} seconds.")
 
 
 def read_puzzle_input(day: int) -> list[str]:
