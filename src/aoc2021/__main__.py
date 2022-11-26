@@ -5,8 +5,7 @@
 import sys
 
 # Local application imports:
-from aoc2021.common import build_all_templates, build_templates
-from aoc2021.common import compute_all_solutions, compute_solution
+from aoc2021.common import AdventBuilder, AdventSolver
 
 
 def main():
@@ -24,15 +23,17 @@ def main():
             _print_help()
             sys.exit(0)
         elif flag in ("-b", "--build"):
+            builder = AdventBuilder()
             if day == -1:
-                build_all_templates()
+                builder.build_all_templates()
             else:
-                build_templates(day=day)
+                builder.build_templates(day=day)
         elif flag in ("-s", "--solve"):
+            solver = AdventSolver()
             if day == -1:
-                compute_all_solutions()
+                solver.solve_all_days()
             else:
-                compute_solution(day=day)
+                solver.solve_day(day=day)
         else:
             print(f"Value Error: Unrecognised '{flag}' flag.")
             _print_help()
