@@ -39,6 +39,7 @@ class OrigamiInstructions:
             axis, line = self.pending_folds.pop(0)
             self.applied_folds.append([axis, line])
             sheet_1, sheet_2 = self._split_sheet(axis=axis, line=line)
+            sheet_1, sheet_2 = self._make_compatible(sheet_1=sheet_1, sheet_2=sheet_2)
             sheet_2 = numpy.flip(sheet_2, axis=axis)
             self.sheet = numpy.logical_or(sheet_1, sheet_2)
 
@@ -48,6 +49,21 @@ class OrigamiInstructions:
             return self.sheet[:, :line], self.sheet[:, line + 1:]
         else:  # Y: vertical split along a horizontal line.
             return self.sheet[:line, :], self.sheet[line + 1:, :]
+
+    @staticmethod
+    def _make_compatible(sheet_1: numpy.ndarray, sheet_2: numpy.ndarray) \
+            -> tuple[numpy.ndarray, numpy.ndarray]:
+        """If one sheet is shorter than the other, expand it with new 'False' cells."""
+        if sheet_1.shape > sheet_2.shape:
+            expanded_sheet = numpy.zeros_like(sheet_1)
+            expanded_sheet[:sheet_2.shape[0], :sheet_2.shape[1]] = sheet_2
+            return sheet_1, expanded_sheet
+        elif sheet_1.shape < sheet_2.shape:
+            expanded_sheet = numpy.zeros_like(sheet_2)
+            expanded_sheet[:sheet_1.shape[0], :sheet_1.shape[1]] = sheet_1
+            return expanded_sheet, sheet_2
+        else:
+            return sheet_1, sheet_2
 
     @property
     def sheet_code(self) -> str:
