@@ -13,7 +13,7 @@ import pandas
 BASE_PATH = Path(__file__).parent
 # noinspection SpellCheckingInspection
 DAILY_NAMES = tuple([
-    "Day 1: Sonar Sweep", "Day 2: Dive", "Day 3: Binary Diagnostic",
+    "Day 1: Sonar Sweep", "Day 2: Dive!", "Day 3: Binary Diagnostic",
     "Day 4: Giant Squid", "Day 5: Hydrothermal Venture", "Day 6: Lanternfish",
     "Day 7: The Treachery of Whales", "Day 8: Seven Segment Search",
     "Day 9: Smoke Basin", "Day 10: Syntax Scoring", "Day 11: Dumbo Octopus",
@@ -177,6 +177,7 @@ class AdventSolver:
 class AdventCalendar:
     """Manage the puzzle calendar table included in the README.md file."""
     _readme_file = BASE_PATH.parents[1] / "README.md"
+    _github_path = "https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021"
 
     def __init__(self, data: pandas.DataFrame = None):
         self.solver = AdventSolver()
@@ -204,14 +205,14 @@ class AdventCalendar:
         data_lines = lines[self._table_start + 2:self._table_start + 27]
         return [headers] + data_lines
 
-    @staticmethod
-    def _process_readme_rows(raw_rows: list[str]) -> pandas.DataFrame:
+    def _process_readme_rows(self, raw_rows: list[str]) -> pandas.DataFrame:
         """Convert raw calendar lines from the README file into a pandas.DataFrame."""
         rows = [row.removeprefix("|").removesuffix("|\n") for row in raw_rows]
         headers = [r.replace("**", "").strip() for r in rows[0].split("|")]
         data = [[value.strip() for value in row.split("|")] for row in rows[1:]]
         data = [[value if value != "" else "-" for value in row] for row in data]
         df = pandas.DataFrame(data=data, columns=headers)
+        df = self._remove_hyper_links(data_frame=df)
         df["Day"] = df["Day"].astype(int)
         return df.set_index(keys="Day")
 
@@ -258,7 +259,8 @@ class AdventCalendar:
 
     def _table_as_lines(self) -> list[str]:
         """Convert the stored calendar table into text lines."""
-        data = self.data.reset_index(drop=False)
+        data = self.data.copy(deep=True).reset_index(drop=False)
+        data = self._add_hyper_links(data_frame=data)
         total_stars = sum(data["Stars"].str.count(":star:"))
         total_time = sum(self.solver.parse_timing(value=value) for value in data["Time"])
         totals = pandas.DataFrame(data="-", columns=data.columns, index=[0])
@@ -271,3 +273,21 @@ class AdventCalendar:
             index=False, tablefmt="pipe",
             colalign=("center", "left", "center", "center", "center", "center"))
         return (text + "\n").splitlines(keepends=True)
+
+    def _add_hyper_links(self, data_frame: pandas.DataFrame) -> pandas.DataFrame:
+        """Add hyperlinks to solution scripts for each day with at least one solution."""
+        for idx, (day, puzzle, stars, s1, s2, _) in data_frame.iterrows():
+            link = f"{self._github_path}/day_{day}/solution.py"
+            if s1 != "-" or s2 != "-":
+                data_frame.loc[idx, "Day"] = f"[{day}]({link})"
+                data_frame.loc[idx, "Puzzle"] = f"[{puzzle}]({link})"
+                data_frame.loc[idx, "Stars"] = f"[{stars}]({link})"
+        return data_frame
+
+    @staticmethod
+    def _remove_hyper_links(data_frame: pandas.DataFrame) -> pandas.DataFrame:
+        """Remove hyperlinks to solution scripts for days with them."""
+        for col in ["Day", "Puzzle", "Stars"]:
+            data_frame[col] = data_frame[col].apply(
+                lambda s: s.removeprefix("[").split("]")[0])
+        return data_frame
