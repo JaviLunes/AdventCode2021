@@ -202,8 +202,11 @@ class AdventCalendar:
     def from_scratch(cls) -> "AdventCalendar":
         """Create a new, empty AdventCalendar, overwriting the one in the README file."""
         empty_df = pandas.DataFrame(
-            data="-", columns=["Stars", "Solution 1", "Solution 2", "Time"],
+            data="-", columns=["Puzzle", "Stars", "Solution 1", "Solution 2", "Time"],
             index=pandas.RangeIndex(start=1, stop=26, name="Day"))
+        puzzle_map = {int(day): name for day, name in
+                      [name.removeprefix("Day ").split(": ") for name in DAILY_NAMES]}
+        empty_df["Puzzle"] = empty_df.index.map(puzzle_map)
         calendar = AdventCalendar(data=empty_df)
         calendar._write_to_readme()
         return calendar
@@ -224,7 +227,7 @@ class AdventCalendar:
         s1, s2, timing = self.solver.solve_day(day=day)
         self.data.loc[day, "Solution 1"] = s1 or "-"
         self.data.loc[day, "Solution 2"] = s2 or "-"
-        self.data.loc[day, "Time"] = timing
+        self.data.loc[day, "Time"] = timing or "-"
         stars = ":star::star:" if s1 and s2 else ":star:" if s1 or s2 else "-"
         self.data.loc[day, "Stars"] = stars
 
@@ -241,5 +244,6 @@ class AdventCalendar:
         data = self.data.reset_index(drop=False)
         data.columns = [f"**{name}**" for name in data.columns]
         text = data.to_markdown(
-            index=False, tablefmt="pipe", numalign="center", stralign="center")
+            index=False, tablefmt="pipe",
+            colalign=("center", "left", "center", "center", "center", "center"))
         return (text + "\n").splitlines(keepends=True)
