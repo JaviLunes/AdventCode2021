@@ -1,11 +1,12 @@
 # Advent of Code 2021
 
-Tools and scripts for solving the different puzzles of the **Advent of Code 2021** event.
+Tools and scripts for solving the different puzzles of the **Advent of Code 2021** 
+challenge.
 
 ### Puzzle calendar:
 |                                           **Day**                                            | **Puzzle**                                                                                                        |                                               **Stars**                                                |  **Solution 1**  |  **Solution 2**  |  **Time**   |
 |:--------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------:|:----------------:|:----------------:|:-----------:|
-|  [1](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)  | [Sonar Sweep](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)              | [:star::star:](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)  |       1466       |       1491       |   2.14 ms   |
+|  [1](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)  | [Sonar Sweep](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)              | [:star::star:](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)  |       1466       |       1491       |   2.10 ms   |
 |  [2](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_2/solution.py)  | [Dive!](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_2/solution.py)                    | [:star::star:](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_2/solution.py)  |     1746616      |    1741971043    |   2.00 ms   |
 |  [3](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_3/solution.py)  | [Binary Diagnostic](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_3/solution.py)        | [:star::star:](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_3/solution.py)  |     4174964      |     4474944      |  14.12 ms   |
 |  [4](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_4/solution.py)  | [Giant Squid](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_4/solution.py)              | [:star::star:](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_4/solution.py)  |      33348       |       8112       |  85.21 ms   |
