@@ -40,8 +40,8 @@ class AdventBuilder:
 
     def build_all_templates(self):
         """Built input, tools, solving and tests template files for all days."""
-        for d in range(len(DAILY_NAMES)):
-            self.build_templates(day=d + 1)
+        for day in range(1, len(DAILY_NAMES) + 1):
+            self.build_templates(day=day)
 
     @staticmethod
     def _write_file(file_path: Path, lines: list[str]):
@@ -108,10 +108,10 @@ class AdventBuilder:
 
 class AdventSolver:
     """Manage puzzle solving tasks."""
-    def solve_day(self, day: int):
+    def print_day(self, day: int):
         """Print the solutions and execution time for the target day's puzzles."""
         print(DAILY_NAMES[day - 1])
-        solution_1, solution_2, timing = self._solve_day(day=day)
+        solution_1, solution_2, timing = self.solve_day(day=day)
         if solution_1 is None:
             print("    The first puzzle remains unsolved!")
         else:
@@ -123,12 +123,12 @@ class AdventSolver:
         if solution_1 is not None or solution_2 is not None:
             print(f"    This took {timing}.")
 
-    def solve_all_days(self):
+    def print_all_days(self):
         """Print the solutions and execution times for each day's puzzles."""
-        for d in range(len(DAILY_NAMES)):
-            self.solve_day(day=d + 1)
+        for day in range(1, len(DAILY_NAMES) + 1):
+            self.print_day(day=day)
 
-    def _solve_day(self, day: int) -> tuple[int | None, int | None, str]:
+    def solve_day(self, day: int) -> tuple[int | None, int | None, str]:
         """Get the solutions and execution time for the target day's puzzles."""
         try:
             module = import_module(f"aoc2021.day_{day}.solution")

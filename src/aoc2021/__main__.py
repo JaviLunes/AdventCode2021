@@ -31,9 +31,9 @@ def main():
         elif flag in ("-s", "--solve"):
             solver = AdventSolver()
             if day == -1:
-                solver.solve_all_days()
+                solver.print_all_days()
             else:
-                solver.solve_day(day=day)
+                solver.print_day(day=day)
         else:
             print(f"Value Error: Unrecognised '{flag}' flag.")
             _print_help()
