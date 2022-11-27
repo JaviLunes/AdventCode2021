@@ -6,6 +6,9 @@ from importlib import import_module
 from pathlib import Path
 from time import time
 
+# Third party imports:
+import pandas
+
 # Set constants:
 BASE_PATH = Path(__file__).parent
 # noinspection SpellCheckingInspection
@@ -152,3 +155,79 @@ class AdventSolver:
             return f"{value * 1e3:.2f} ms"
         else:
             return f"{value:.2f} s"
+
+
+class AdventCalendar:
+    """Manage the puzzle calendar table included in the README.md file."""
+    _readme_file = BASE_PATH.parents[1] / "README.md"
+
+    def __init__(self):
+        self.solver = AdventSolver()
+        self._table_start = self._find_table_start()
+        self.data = self._load_from_readme()
+
+    def _find_table_start(self) -> int:
+        """Locate the first line numbers of the README file's puzzle calendar table."""
+        with open(self._readme_file, mode="r") as file:
+            lines = file.readlines()
+        title = [
+            i for i, line in enumerate(lines) if line == "### Puzzle calendar:\n"][0]
+        return title + 1
+
+    def _load_from_readme(self) -> pandas.DataFrame:
+        """Extract available data from the puzzle calendar printed in the README file."""
+        lines = self._extract_readme_rows()
+        return self._process_readme_rows(raw_rows=lines)
+
+    def _extract_readme_rows(self) -> list[str]:
+        """Extract all the puzzle calendar lines printed in the README file."""
+        with open(self._readme_file, mode="r", encoding="utf-8") as file:
+            lines = file.readlines()
+        headers = lines[self._table_start]
+        data_lines = lines[self._table_start + 2:self._table_start + 27]
+        return [headers] + data_lines
+
+    @staticmethod
+    def _process_readme_rows(raw_rows: list[str]) -> pandas.DataFrame:
+        """Convert raw calendar lines from the README file into a pandas.DataFrame."""
+        rows = [row.removeprefix("|").removesuffix("|\n") for row in raw_rows]
+        headers = [r.replace("**", "").strip() for r in rows[0].split("|")]
+        data = [[value.strip() for value in row.split("|")] for row in rows[1:]]
+        data = [[value if value != "" else "-" for value in row] for row in data]
+        return pandas.DataFrame(data=data, columns=headers)
+
+    def register_all_days(self):
+        """Add the data for each day's puzzles to the README file's calendar."""
+        for day in range(1, len(DAILY_NAMES) + 1):
+            self._solve_day(day=day)
+        self._write_to_readme()
+
+    def register_day(self, day: int):
+        """Add the data for the target day's puzzles to the README file's calendar."""
+        self._solve_day(day=day)
+        self._write_to_readme()
+
+    def _solve_day(self, day: int):
+        """Fill rows with missing solutions or timing values."""
+        s1, s2, timing = self.solver.solve_day(day=day)
+        self.data.loc[day - 1, "Solution 1"] = s1 or "-"
+        self.data.loc[day - 1, "Solution 2"] = s2 or "-"
+        self.data.loc[day - 1, "Time"] = timing
+        stars = ":star::star:" if s1 and s2 else ":star:" if s1 or s2 else "-"
+        self.data.loc[day - 1, "Stars"] = stars
+
+    def _write_to_readme(self):
+        """Replace the calendar table in the README file with the stored one."""
+        with open(self._readme_file, mode="r", encoding="utf-8") as file:
+            lines = file.readlines()
+        lines[self._table_start:self._table_start + 28] = self._table_as_lines()
+        with open(self._readme_file, mode="w", encoding="utf-8") as file:
+            file.writelines(lines)
+
+    def _table_as_lines(self) -> list[str]:
+        """Convert the stored calendar table into text lines."""
+        data = self.data.copy(deep=True)
+        data.columns = [f"**{name}**" for name in self.data.columns]
+        text = data.to_markdown(
+            index=False, tablefmt="pipe", numalign="center", stralign="center")
+        return (text + "\n").splitlines(keepends=True)

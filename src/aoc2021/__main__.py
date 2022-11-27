@@ -5,14 +5,15 @@
 import sys
 
 # Local application imports:
-from aoc2021.common import AdventBuilder, AdventSolver
+from aoc2021.common import AdventBuilder, AdventCalendar, AdventSolver
 
 
 def main():
     """Main function managing execution requests of core functions from command line."""
     try:
         _, flag, *args = sys.argv
-        assert flag in ["-h", "--help", "-b", "--build", "-s", "--solve"]
+        assert flag in [
+            "-h", "--help", "-b", "--build", "-s", "--solve", "-r", "--register"]
         day = -1 if not args else int(args[0])
     except (ValueError, AssertionError):
         print("Value Error: Provided command line arguments are not valid.")
@@ -34,6 +35,12 @@ def main():
                 solver.print_all_days()
             else:
                 solver.print_day(day=day)
+        elif flag in ("-r", "--register"):
+            calendar = AdventCalendar()
+            if day == -1:
+                calendar.register_all_days()
+            else:
+                calendar.register_day(day=day)
         else:
             print(f"Value Error: Unrecognised '{flag}' flag.")
             _print_help()
@@ -51,10 +58,14 @@ def _print_help():
             Generate template files for solving and testing the provided day.
         -s, --solve:
             Compute and print the solutions to the puzzle of the provided day.
+        - r, --register:
+            Compute the solutions to the puzzle of the provided day and write 
+            them to the table calendar in the README.md file.
         day:
             Puzzle number to build/solve. If -1 or not provided and building, 
             all not yet built puzzles will be built. If -1 or not provided 
-            and solving, all built puzzles will be solved.
+            and solving or registering, all built puzzles will be solved or 
+            registered.
     """.replace("\n    ", "\n")
     print(usage)
 
