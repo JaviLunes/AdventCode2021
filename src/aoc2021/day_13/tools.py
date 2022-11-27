@@ -51,12 +51,56 @@ class OrigamiInstructions:
 
     @property
     def sheet_code(self) -> str:
-        """Code and combine the marked dots in the sheet into a multiline string."""
-        coded_array = numpy.where(self.sheet, "#", " ")
-        lines = [" ".join(coded_array[i, :]) for i in range(self.sheet.shape[0])]
-        return "\n" + "\n".join(lines)
+        """Code and combine the marked dots in the sheet into an 8-letter string."""
+        array = self.sheet.astype(int)
+        char_map = {v: k for k, v in DOT_PRINTER_MAP.items()}
+        characters = [char_map[tuple(tuple(r) for r in array[:, i:i + 4].tolist())]
+                      for i in range(0, 40, 5)]
+        return "".join(characters)
 
     @property
     def visible_dots(self) -> int:
         """Provide the number of visible dots on the sheet."""
         return numpy.sum(self.sheet)
+
+
+DOT_PRINTER_MAP = dict(
+    A=((0, 1, 1, 0), (1, 0, 0, 1), (1, 0, 0, 1), (1, 1, 1, 1), (1, 0, 0, 1),
+       (1, 0, 0, 1)),
+    B=((1, 1, 1, 0), (1, 0, 0, 1), (1, 1, 1, 0), (1, 0, 0, 1), (1, 0, 0, 1),
+       (1, 1, 1, 0)),
+    C=((0, 1, 1, 0), (1, 0, 0, 1), (1, 0, 0, 0), (1, 0, 0, 0), (1, 0, 0, 1), 
+       (0, 1, 1, 0)),
+    D=(),
+    E=((1, 1, 1, 1), (1, 0, 0, 0), (1, 1, 1, 0), (1, 0, 0, 0), (1, 0, 0, 0),
+       (1, 1, 1, 1)),
+    F=((1, 1, 1, 1), (1, 0, 0, 0), (1, 1, 1, 0), (1, 0, 0, 0), (1, 0, 0, 0), 
+       (1, 0, 0, 0)),
+    G=((0, 1, 1, 0), (1, 0, 0, 1), (1, 0, 0, 0), (1, 0, 1, 1), (1, 0, 0, 1),
+       (0, 1, 1, 1)),
+    H=(),
+    I=(),
+    J=((0, 0, 1, 1), (0, 0, 0, 1), (0, 0, 0, 1), (0, 0, 0, 1), (1, 0, 0, 1),
+       (0, 1, 1, 0)),
+    K=((1, 0, 0, 1), (1, 0, 1, 0), (1, 1, 0, 0), (1, 0, 1, 0), (1, 0, 1, 0), 
+       (1, 0, 0, 1)),
+    L=((1, 0, 0, 0), (1, 0, 0, 0), (1, 0, 0, 0), (1, 0, 0, 0), (1, 0, 0, 0), 
+       (1, 1, 1, 1)),
+    M=(),
+    N=(),
+    O=(),
+    P=((1, 1, 1, 0), (1, 0, 0, 1), (1, 0, 0, 1), (1, 1, 1, 0), (1, 0, 0, 0),
+       (1, 0, 0, 0)),
+    Q=(),
+    R=((1, 1, 1, 0), (1, 0, 0, 1), (1, 0, 0, 1), (1, 1, 1, 0), (1, 0, 1, 0),
+       (1, 0, 0, 1)),
+    S=(),
+    T=(),
+    U=((1, 0, 0, 1), (1, 0, 0, 1), (1, 0, 0, 1), (1, 0, 0, 1), (1, 0, 0, 1),
+       (0, 1, 1, 0)),
+    V=(),
+    W=(),
+    X=(),
+    Y=(),
+    Z=((1, 1, 1, 1), (0, 0, 0, 1), (0, 0, 1, 0), (0, 1, 0, 0), (1, 0, 0, 0),
+       (1, 1, 1, 1)))
