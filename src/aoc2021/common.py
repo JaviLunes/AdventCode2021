@@ -161,10 +161,10 @@ class AdventCalendar:
     """Manage the puzzle calendar table included in the README.md file."""
     _readme_file = BASE_PATH.parents[1] / "README.md"
 
-    def __init__(self):
+    def __init__(self, data: pandas.DataFrame = None):
         self.solver = AdventSolver()
         self._table_start = self._find_table_start()
-        self.data = self._load_from_readme()
+        self.data = data if data is not None else self._load_from_readme()
 
     def _find_table_start(self) -> int:
         """Locate the first line numbers of the README file's puzzle calendar table."""
@@ -197,6 +197,16 @@ class AdventCalendar:
         df = pandas.DataFrame(data=data, columns=headers)
         df["Day"] = df["Day"].astype(int)
         return df.set_index(keys="Day")
+
+    @classmethod
+    def from_scratch(cls) -> "AdventCalendar":
+        """Create a new, empty AdventCalendar, overwriting the one in the README file."""
+        empty_df = pandas.DataFrame(
+            data="-", columns=["Stars", "Solution 1", "Solution 2", "Time"],
+            index=pandas.RangeIndex(start=1, stop=26, name="Day"))
+        calendar = AdventCalendar(data=empty_df)
+        calendar._write_to_readme()
+        return calendar
 
     def register_all_days(self):
         """Add the data for each day's puzzles to the README file's calendar."""
