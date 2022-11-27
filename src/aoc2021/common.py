@@ -139,12 +139,12 @@ class AdventSolver:
             return None, None, ""
         start = time()
         solution_1, solution_2 = module.compute_solution()
-        timing = self._format_timing(value=time() - start)
+        timing = self.format_timing(value=time() - start)
         return solution_1, solution_2, timing
 
     @staticmethod
-    def _format_timing(value: float) -> str:
-        """Convert a time value in seconds to sensitive units."""
+    def format_timing(value: float) -> str:
+        """Format a time value in seconds into a time string with sensitive units."""
         if value >= 1.5 * 3600:
             return f"{value / 3600:.2f} h"
         elif value >= 1.5 * 60:
@@ -155,6 +155,23 @@ class AdventSolver:
             return f"{value * 1e3:.2f} ms"
         else:
             return f"{value:.2f} s"
+
+    @staticmethod
+    def parse_timing(value: str) -> float:
+        """Convert a time string with sensitive units into a time value in seconds."""
+        if value == "-":
+            return 0
+        value, units = value.split(" ")
+        if units == "h":
+            return float(value) * 3600
+        elif units == "min":
+            return float(value) * 60
+        elif units == "μs":
+            return float(value) / 1e6
+        elif units == "ms":
+            return float(value) / 1e3
+        else:
+            return float(value)
 
 
 class AdventCalendar:
@@ -235,13 +252,20 @@ class AdventCalendar:
         """Replace the calendar table in the README file with the stored one."""
         with open(self._readme_file, mode="r", encoding="utf-8") as file:
             lines = file.readlines()
-        lines[self._table_start:self._table_start + 28] = self._table_as_lines()
+        lines[self._table_start:self._table_start + 29] = self._table_as_lines()
         with open(self._readme_file, mode="w", encoding="utf-8") as file:
             file.writelines(lines)
 
     def _table_as_lines(self) -> list[str]:
         """Convert the stored calendar table into text lines."""
         data = self.data.reset_index(drop=False)
+        total_stars = sum(data["Stars"].str.count(":star:"))
+        total_time = sum(self.solver.parse_timing(value=value) for value in data["Time"])
+        totals = pandas.DataFrame(data="-", columns=data.columns, index=[0])
+        totals.loc[:, "Day"] = "**Totals**"
+        totals.loc[:, "Stars"] = f"**{total_stars}**:star:"
+        totals.loc[:, "Time"] = f"**{self.solver.format_timing(value=total_time)}**"
+        data = pandas.concat(objs=[data, totals], ignore_index=True)
         data.columns = [f"**{name}**" for name in data.columns]
         text = data.to_markdown(
             index=False, tablefmt="pipe",
