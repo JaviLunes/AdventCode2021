@@ -170,8 +170,8 @@ class AdventCalendar:
         """Locate the first line numbers of the README file's puzzle calendar table."""
         with open(self._readme_file, mode="r") as file:
             lines = file.readlines()
-        title = [
-            i for i, line in enumerate(lines) if line == "### Puzzle calendar:\n"][0]
+        title = [i for i, line in enumerate(lines)
+                 if line == "### Puzzle calendar:\n"][0]
         return title + 1
 
     def _load_from_readme(self) -> pandas.DataFrame:
@@ -194,7 +194,9 @@ class AdventCalendar:
         headers = [r.replace("**", "").strip() for r in rows[0].split("|")]
         data = [[value.strip() for value in row.split("|")] for row in rows[1:]]
         data = [[value if value != "" else "-" for value in row] for row in data]
-        return pandas.DataFrame(data=data, columns=headers)
+        df = pandas.DataFrame(data=data, columns=headers)
+        df["Day"] = df["Day"].astype(int)
+        return df.set_index(keys="Day")
 
     def register_all_days(self):
         """Add the data for each day's puzzles to the README file's calendar."""
@@ -210,11 +212,11 @@ class AdventCalendar:
     def _solve_day(self, day: int):
         """Fill rows with missing solutions or timing values."""
         s1, s2, timing = self.solver.solve_day(day=day)
-        self.data.loc[day - 1, "Solution 1"] = s1 or "-"
-        self.data.loc[day - 1, "Solution 2"] = s2 or "-"
-        self.data.loc[day - 1, "Time"] = timing
+        self.data.loc[day, "Solution 1"] = s1 or "-"
+        self.data.loc[day, "Solution 2"] = s2 or "-"
+        self.data.loc[day, "Time"] = timing
         stars = ":star::star:" if s1 and s2 else ":star:" if s1 or s2 else "-"
-        self.data.loc[day - 1, "Stars"] = stars
+        self.data.loc[day, "Stars"] = stars
 
     def _write_to_readme(self):
         """Replace the calendar table in the README file with the stored one."""
@@ -226,8 +228,8 @@ class AdventCalendar:
 
     def _table_as_lines(self) -> list[str]:
         """Convert the stored calendar table into text lines."""
-        data = self.data.copy(deep=True)
-        data.columns = [f"**{name}**" for name in self.data.columns]
+        data = self.data.reset_index(drop=False)
+        data.columns = [f"**{name}**" for name in data.columns]
         text = data.to_markdown(
             index=False, tablefmt="pipe", numalign="center", stralign="center")
         return (text + "\n").splitlines(keepends=True)
