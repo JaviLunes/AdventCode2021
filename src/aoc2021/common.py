@@ -143,8 +143,12 @@ class AdventSolver:
     def _format_timing(value: float) -> str:
         """Convert a time value in seconds to sensitive units."""
         if value >= 1.5 * 3600:
-            return f"{value / 3600:.2f} hours"
+            return f"{value / 3600:.2f} h"
         elif value >= 1.5 * 60:
-            return f"{value / 60:.2f} minutes"
+            return f"{value / 60:.2f} min"
+        elif value <= 1e-3:
+            return f"{value * 1e6:.2f} μs"
+        elif value <= 1e-1:
+            return f"{value * 1e3:.2f} ms"
         else:
-            return f"{value:.2f} seconds"
+            return f"{value:.2f} s"
