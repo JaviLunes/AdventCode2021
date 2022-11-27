@@ -149,7 +149,7 @@ class AdventSolver:
             return f"{value / 3600:.2f} h"
         elif value >= 1.5 * 60:
             return f"{value / 60:.2f} min"
-        elif value <= 1e-3:
+        elif value <= 1e-4:
             return f"{value * 1e6:.2f} μs"
         elif value <= 1e-1:
             return f"{value * 1e3:.2f} ms"
