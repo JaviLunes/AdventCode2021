@@ -4,12 +4,14 @@
 # Standard library imports:
 from importlib import import_module
 from pathlib import Path
+from string import Template
 from time import time
 
 # Third party imports:
 import pandas
 
 # Set constants:
+YEAR = 2021
 BASE_PATH = Path(__file__).parent
 # noinspection SpellCheckingInspection
 DAILY_NAMES = tuple([
@@ -177,7 +179,9 @@ class AdventSolver:
 class AdventCalendar:
     """Manage the puzzle calendar table included in the README.md file."""
     _readme_file = BASE_PATH.parents[1] / "README.md"
-    _github_path = "https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021"
+    _puzzle_path = Template("https://adventofcode.com/$year/day/$day")
+    _solve_path = Template("https://github.com/JaviLunes/AdventCode$year/tree/master"
+                           "/src/aoc$year/day_$day/solution.py")
 
     def __init__(self, data: pandas.DataFrame = None):
         self.solver = AdventSolver()
@@ -260,13 +264,13 @@ class AdventCalendar:
     def _table_as_lines(self) -> list[str]:
         """Convert the stored calendar table into text lines."""
         data = self.data.copy(deep=True).reset_index(drop=False)
-        data = self._add_hyper_links(data_frame=data)
-        total_stars = sum(data["Stars"].str.count(":star:"))
         total_time = sum(self.solver.parse_timing(value=value) for value in data["Time"])
+        total_stars = sum(data["Stars"].str.count(":star:"))
         totals = pandas.DataFrame(data="-", columns=data.columns, index=[0])
         totals.loc[:, "Day"] = "**Totals**"
         totals.loc[:, "Stars"] = f"**{total_stars}**:star:"
         totals.loc[:, "Time"] = f"**{self.solver.format_timing(value=total_time)}**"
+        data = self._add_hyper_links(data_frame=data)
         data = pandas.concat(objs=[data, totals], ignore_index=True)
         data.columns = [f"**{name}**" for name in data.columns]
         text = data.to_markdown(
@@ -275,13 +279,18 @@ class AdventCalendar:
         return (text + "\n").splitlines(keepends=True)
 
     def _add_hyper_links(self, data_frame: pandas.DataFrame) -> pandas.DataFrame:
-        """Add hyperlinks to solution scripts for each day with at least one solution."""
-        for idx, (day, puzzle, stars, s1, s2, _) in data_frame.iterrows():
-            link = f"{self._github_path}/day_{day}/solution.py"
+        """Add hyperlinks to puzzle pages and to solution scripts in GitHub."""
+        for idx, (day, puzzle, stars, s1, s2, timing) in data_frame.iterrows():
+            template_mapping = {"day": day, "year": YEAR}
+            link_puzzle = self._puzzle_path.substitute(template_mapping)
+            link_solution = self._solve_path.substitute(template_mapping)
+            data_frame.loc[idx, "Day"] = f"[{day}]({link_puzzle})"
+            data_frame.loc[idx, "Puzzle"] = f"[{puzzle}]({link_puzzle})"
             if s1 != "-" or s2 != "-":
-                data_frame.loc[idx, "Day"] = f"[{day}]({link})"
-                data_frame.loc[idx, "Puzzle"] = f"[{puzzle}]({link})"
-                data_frame.loc[idx, "Stars"] = f"[{stars}]({link})"
+                data_frame.loc[idx, "Stars"] = f"[{stars}]({link_solution})"
+                data_frame.loc[idx, "Solution 1"] = f"[{s1}]({link_solution})"
+                data_frame.loc[idx, "Solution 2"] = f"[{s2}]({link_solution})"
+                data_frame.loc[idx, "Time"] = f"[{timing}]({link_solution})"
         return data_frame
 
     @staticmethod
