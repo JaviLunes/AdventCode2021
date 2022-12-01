@@ -4,6 +4,11 @@ Tools and scripts for solving the different puzzles of the **Advent of Code 2021
 challenge.
 
 ### Puzzle calendar:
+Each day number and puzzle name link to the **Advent of Code** page for the 
+corresponding puzzle. For days with at least one solution registered, the 
+corresponding stars, solution values and time cells link to the main script used for 
+solving such puzzle.
+
 |                  **Day**                   | **Puzzle**                                                      |                                               **Stars**                                                |                                          **Solution 1**                                          |                                             **Solution 2**                                              |                                             **Time**                                              |
 |:------------------------------------------:|:----------------------------------------------------------------|:------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
 |  [1](https://adventofcode.com/2021/day/1)  | [Sonar Sweep](https://adventofcode.com/2021/day/1)              | [:star::star:](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)  |  [1466](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)   |      [1491](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)      | [2.10 ms](https://github.com/JaviLunes/AdventCode2021/tree/master/src/aoc2021/day_1/solution.py)  |
