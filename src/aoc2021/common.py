@@ -295,8 +295,6 @@ class AdventCalendar:
 
     @staticmethod
     def _remove_hyper_links(data_frame: pandas.DataFrame) -> pandas.DataFrame:
-        """Remove hyperlinks to solution scripts for days with them."""
-        for col in ["Day", "Puzzle", "Stars"]:
-            data_frame[col] = data_frame[col].apply(
-                lambda s: s.removeprefix("[").split("]")[0])
-        return data_frame
+        """Remove web hyperlinks for all cells."""
+        rx_find, rx_sub = r"^\[(?P<value>.+)]\(.+\)$", r"\g<value>"
+        return data_frame.replace(to_replace=rx_find, value=rx_sub, regex=True)
