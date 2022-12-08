@@ -6,6 +6,21 @@ from typing import Union
 
 # Third party imports:
 import numpy
+from scipy.spatial.transform import Rotation
+
+# Set constants:
+ROTATIONS = [[1, 0, 0, 0, 1, 0, 0, 0, 1], [1, 0, 0, 0, 0, -1, 0, 1, 0],
+             [1, 0, 0, 0, -1, 0, 0, 0, -1], [1, 0, 0, 0, 0, 1, 0, -1, 0],
+             [0, -1, 0, 1, 0, 0, 0, 0, 1], [0, 0, 1, 1, 0, 0, 0, 1, 0],
+             [0, 1, 0, 1, 0, 0, 0, 0, -1], [0, 0, -1, 1, 0, 0, 0, -1, 0],
+             [-1, 0, 0, 0, -1, 0, 0, 0, 1], [-1, 0, 0, 0, 0, -1, 0, -1, 0],
+             [-1, 0, 0, 0, 1, 0, 0, 0, -1], [-1, 0, 0, 0, 0, 1, 0, 1, 0],
+             [0, 1, 0, -1, 0, 0, 0, 0, 1], [0, 0, 1, -1, 0, 0, 0, -1, 0],
+             [0, -1, 0, -1, 0, 0, 0, 0, -1], [0, 0, -1, -1, 0, 0, 0, 1, 0],
+             [0, 0, -1, 0, 1, 0, 1, 0, 0], [0, 1, 0, 0, 0, 1, 1, 0, 0],
+             [0, 0, 1, 0, -1, 0, 1, 0, 0], [0, -1, 0, 0, 0, -1, 1, 0, 0],
+             [0, 0, -1, 0, -1, 0, -1, 0, 0], [0, -1, 0, 0, 0, 1, -1, 0, 0],
+             [0, 0, 1, 0, 1, 0, -1, 0, 0], [0, 1, 0, 0, 0, -1, -1, 0, 0]]
 
 
 class Point:
@@ -32,23 +47,35 @@ class Point:
 
     @property
     def coordinates(self) -> tuple[int, int, int]:
-        """Provide a tuple with the coordinates of this Point."""
+        """Provide the coordinates of this Point as a tuple."""
         return self.x, self.y, self.z
+
+    def rotate(self, rotation: Rotation) -> "Point":
+        """Build a new Point object by applying a scipy.Rotation to this Point."""
+        return Point(*map(int, rotation.apply([self.x, self.y, self.z])))
 
 
 class Scanner:
     """Underwater scanner able to detect beacons within 1000 units in a 3D region."""
-    def __init__(self, name: str, beacons: list[Point]):
-        self.name = name
+    def __init__(self, beacons: list[Point]):
         self.beacons = beacons
         self.origin = Point(x=0, y=0, z=0)
-        self.rotation = None  # TODO...
 
     @classmethod
-    def from_str(cls, name: str, beacons: list[str]) -> "Scanner":
+    def from_str(cls, beacons: list[str]) -> "Scanner":
         """Create a new Scanner object by parsing strings representing beacons."""
         beacons = [Point(*map(int, beacon.split(","))) for beacon in beacons]
-        return Scanner(name=name, beacons=beacons)
+        return Scanner(beacons=beacons)
+
+    def rotate(self, rot_i: int) -> "Scanner":
+        """Build a new Scanner by applying a Rotation to the beacons of this Scanner."""
+        rotation = Rotation.from_matrix(numpy.array(ROTATIONS[rot_i]).reshape(3, 3))
+        rotated_beacons = [beacon.rotate(rotation=rotation) for beacon in self.beacons]
+        return Scanner(beacons=rotated_beacons)
+
+    def get_all_rotations(self) -> list["Scanner"]:
+        """Build 24 new Scanner by applying the 24 3D cube rotations to this Scanner."""
+        return [self.rotate(rot_i=i) for i in range(len(ROTATIONS))]
 
 
 class ScannerAligner:
@@ -66,15 +93,13 @@ class ScannerAligner:
 
     def align_rotation(self, target: Scanner, ref: Scanner):
         """Try to align one of the rotations of a Scanner with another reference."""
-        rotations = ...  # TODO: Generate the 24 (?) rotation Scanners of 'aligned'
-        for rotation, rotated_target in rotations:
+        for rotated_target in target.get_all_rotations():
             try:
                 self.align_to_reference(target=rotated_target, ref=ref)
             except ValueError:
                 continue
             else:
-                target.origin = rotated_target.origin
-                target.rotation = rotation
+                return rotated_target
         raise ValueError("These two Scanner objects can't be aligned!")
 
     @staticmethod

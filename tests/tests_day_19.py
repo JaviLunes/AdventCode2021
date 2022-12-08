@@ -27,11 +27,19 @@ class AlignmentTests(unittest.TestCase):
             "-466,-666,-811", "-429,-592,574", "-355,545,-477", "703,-491,-529",
             "-328,-685,520", "413,935,-424", "-391,539,-444", "586,-435,557",
             "-364,-763,-893", "807,-499,-711", "755,-354,-619", "553,889,-390"]
+        self.beacons_4_large = [
+            "727,592,562", "-293,-554,779", "441,611,-461", "-714,465,-776",
+            "-743,427,-804", "-660,-479,-426", "832,-632,460", "927,-485,-438",
+            "408,393,-506", "466,436,-512", "110,16,151", "-258,-428,682",
+            "-393,719,612", "-211,-452,876", "808,-476,-593", "-575,615,604",
+            "-485,667,467", "-680,325,-822", "-627,-443,-432", "872,-547,-609",
+            "833,512,582", "807,604,487", "839,-516,451", "891,-625,532",
+            "-652,-548,-490", "30,-46,-14"]
 
     def test_align_small_scanners(self):
         """Scanner 1 lays at x5y2z0 offset, no rotation from Scanner 0's frame."""
-        s_0 = Scanner.from_str(name="0", beacons=self.beacons_0_small)
-        s_1 = Scanner.from_str(name="1", beacons=self.beacons_1_small)
+        s_0 = Scanner.from_str(beacons=self.beacons_0_small)
+        s_1 = Scanner.from_str(beacons=self.beacons_1_small)
         self.assertTupleEqual((0, 0, 0), s_1.origin.coordinates)
         aligner = ScannerAligner(minimum_shared_beacons=3)
         aligner.align_to_reference(target=s_1, ref=s_0)
@@ -39,9 +47,22 @@ class AlignmentTests(unittest.TestCase):
 
     def test_align_large_scanners_without_rotation(self):
         """Scanner 1 can't be aligned to Scanner 0 without rotating it."""
-        s_0 = Scanner.from_str(name="0", beacons=self.beacons_0_large)
-        s_1 = Scanner.from_str(name="1", beacons=self.beacons_1_large)
-        aligner = ScannerAligner(minimum_shared_beacons=3)
-        for _ in range(24 * 31):
-            with self.assertRaises(ValueError):
-                aligner.align_to_reference(target=s_1, ref=s_0)
+        s_0 = Scanner.from_str(beacons=self.beacons_0_large)
+        s_1 = Scanner.from_str(beacons=self.beacons_1_large)
+        aligner = ScannerAligner(minimum_shared_beacons=12)
+        with self.assertRaises(ValueError):
+            aligner.align_to_reference(target=s_1, ref=s_0)
+
+    def test_align_large_scanners_with_rotation_1(self):
+        """One of Scanner 1's rotations can be aligned to Scanner 0."""
+        s_0 = Scanner.from_str(beacons=self.beacons_0_large)
+        s_1 = Scanner.from_str(beacons=self.beacons_1_large)
+        aligner = ScannerAligner(minimum_shared_beacons=12)
+        aligner.align_rotation(target=s_1, ref=s_0)
+
+    def test_align_large_scanners_with_rotation_4(self):
+        """One of Scanner 4's rotations can be aligned to Scanner 1."""
+        s_1 = Scanner.from_str(beacons=self.beacons_1_large)
+        s_4 = Scanner.from_str(beacons=self.beacons_4_large)
+        aligner = ScannerAligner(minimum_shared_beacons=12)
+        aligner.align_rotation(target=s_4, ref=s_1)
